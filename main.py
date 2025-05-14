@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-
+import requests
 
 class GUI(tk.Tk):
     def __init__(self):
@@ -47,4 +47,16 @@ class GUI(tk.Tk):
     def display(self):
         print(self.entry.get())
 
-GUI()
+class Weather:
+    def __init__(self):
+        pass
+
+get_geocode = requests.get("http://api.openweathermap.org/geo/1.0/direct?q=Ghaziabad&appid=ec99aec66d6d231466250cf9fb84d219")
+
+# GET request to GeeksforGeeks
+# get_response = requests.get("https://api.openweathermap.org/data/2.5/weather?lat=44.34&lon=10.99&appid=ec99aec66d6d231466250cf9fb84d219")
+
+# Printing only the status code
+print(get_geocode.json()[0]['lat'],get_geocode.json()[0]['lon'])
+
+# GUI()
