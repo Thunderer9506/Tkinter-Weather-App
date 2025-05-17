@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 import requests
 from dotenv import load_dotenv
 import os
@@ -46,10 +47,13 @@ class GUI(tk.Tk):
     def display(self):
         weather = Weather(self.entry.get().title())
         data = weather.fetch_weatherData()
-        self.temp['text'] = f'Temperature: {data["main"]["temp"]}C'
-        self.condition['text'] = f'Condition: {data["weather"][0]["description"]}'
-        self.humidity['text'] = f'Humidity: {data["main"]["humidity"]}%'
-        self.windSpeed['text'] = f'Wind Speed: {data["wind"]["speed"]} km/h'
+        if "error" in data:
+            messagebox.showerror("Error","No Such City/Area Exist")
+        else:
+            self.temp['text'] = f'Temperature: {data["main"]["temp"]}C'
+            self.condition['text'] = f'Condition: {data["weather"][0]["description"]}'
+            self.humidity['text'] = f'Humidity: {data["main"]["humidity"]}%'
+            self.windSpeed['text'] = f'Wind Speed: {data["wind"]["speed"]} km/h'
 
 class Weather:
     def __init__(self,cityName):
@@ -66,19 +70,26 @@ class Weather:
         }
 
         get_geocode = requests.get(self.GEOURL,params)
-        data = get_geocode.json()[0]
-        return (data['lat'],data['lon'])
+        try:
+            data = get_geocode.json()[0]
+            return (data['lat'],data['lon'])
+        except Exception as e:
+            return {'error':e}
     
     def fetch_weatherData(self):
-        params = {
-            'lat':self.GeoCode[0],
-            'lon':self.GeoCode[1],
-            'appid':self.appid,
-            'units':"metric",
-        }
+        try:
+            params = {
+                'lat':self.GeoCode[0],
+                'lon':self.GeoCode[1],
+                'appid':self.appid,
+                'units':"metric",
+            }
 
-        get_weatherData = requests.get(self.WeatherURL,params)
-        data = get_weatherData.json()
-        return data
+            get_weatherData = requests.get(self.WeatherURL,params)
+            data = get_weatherData.json()
+            return data
+        except Exception as e:
+            return {'error': str(e)}
+        
 
 GUI()
